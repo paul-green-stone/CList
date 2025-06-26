@@ -1,2 +1,2 @@
 # CList
-A linked list ata type implemented in C
+A linked list data type implemented in C
