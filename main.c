@@ -1,14 +1,15 @@
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #include "list.h"
 
-void print_int(int* data) {
-    printf("%d", *data);
+void print_char(char* data) {
+    printf("%s", data);
 }
 
-int match_int(int* a, int* b) {
-    return *a - *b;
+int match_char(const char* a, const char* b) {
+    return strcmp(a, b);
 }
 
 /* ================================================================ */
@@ -16,54 +17,31 @@ int match_int(int* a, int* b) {
 int main(int argc, char** argv) {
 
     List list;
-    int array[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
-    void* data = NULL;
+
+    char* array[] = {"Paul", "Katherine", "Valery", "Elizabeth"};
+    void* data;
     /* ======== */
+    
+    List_init(&list, free);
+    list.print = (void (*)(void*)) &print_char;
+    list.match = (int (*)(const void*, const void*)) match_char;
 
-    srand(time(NULL));
+    void* str = malloc((strlen(*array) * sizeof(char)) + 1);
+    strcpy(str, *array);
+    List_insert_tail(&list, str);
+    str = malloc((strlen(*(array + 1)) * sizeof(char)) + 1);   
+    strcpy(str, *(array + 1));
 
-    List_init(&list, NULL);
-    list.print = (void (*)(void* data)) print_int;
-    list.match = (void (*)(const void* a, const void* b)) match_int;
-
-    for (size_t i = 0; i < sizeof(array) / sizeof(array[0]); i++) {
-        List_insert_tail(&list, &array[i]);
-    }
-
-    int* a = List_find(&list, (array + 1));
-    if (a != NULL) {
-        printf("Found: %d\n", *a);
-    }
-
-    printf("List size: %ld\n", list.size);
-
+    List_insert_tail(&list, str);
     List_print(&list);
 
-    for (; list.size != 0; ) {
-
-        List_print(&list);
-
-        List_remove_tail(&list, &data);
+    Node* n = List_find(&list, "Katherine");
+    if (n != NULL) {
+        
+        str = malloc((strlen(*(array + 2)) * sizeof(char)) + 1);
+        strcpy(str, *(array + 2));
+        List_insert_before(&list, n, str);
     }
-
-    printf("List size: %ld\n", list.size);
-
-    List_destroy(&list);
-
-    /* ================================================================ */
-
-    List_init(&list, free);
-
-    for (size_t i = 0; i < 10; i++) {
-
-        int* x = malloc(sizeof(int));
-        *x = rand() % 100;
-
-        List_insert_tail(&list, x);
-    }
-
-    list.print = (void (*)(void* data)) print_int;
-    printf("List size: %ld\n", list.size);
 
     List_print(&list);
 
